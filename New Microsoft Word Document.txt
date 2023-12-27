@@ -1,0 +1,616 @@
+import operator
+
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, operator.add),
+            '-': (1, operator.sub),
+            '*': (2, operator.mul),
+            '/': (2, operator.truediv),
+            '%': (2, operator.mod),
+            '^': (3, operator.pow),
+            'and': (4, operator.and_),
+            'or': (5, operator.or_),
+            'not': (6, operator.not_),
+            '==': (7, operator.eq),
+            '!=': (7, operator.ne),
+            '<': (8, operator.lt),
+            '<=': (8, operator.le),
+            '>': (8, operator.gt),
+            '>=': (8, operator.ge),
+        }
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (operators and operators[-1] in self.operators and
+                        self.operators[token][0] <= self.operators[operators[-1]][0]):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][1]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 + 3 * ( 4 - 1 )"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+------------------------------------------------------
+
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, lambda x, y: x + y),
+            '-': (1, lambda x, y: x - y),
+            '*': (2, lambda x, y: x * y),
+            '/': (2, lambda x, y: x / y),
+            '%': (2, lambda x, y: x % y),
+            '^': (3, lambda x, y: x ** y),
+            'and': (4, lambda x, y: x and y),
+            'or': (5, lambda x, y: x or y),
+            'not': (6, lambda x: not x),
+            '==': (7, lambda x, y: x == y),
+            '!=': (7, lambda x, y: x != y),
+            '<': (8, lambda x, y: x < y),
+            '<=': (8, lambda x, y: x <= y),
+            '>': (8, lambda x, y: x > y),
+            '>=': (8, lambda x, y: x >= y),
+        }
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (operators and operators[-1] in self.operators and
+                       self.operators[token][0] <= self.operators[operators[-1]][0]):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][1]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 + 3 * ( 4 - 1 )"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+_______________________________________________________________
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, self.add),
+            '-': (1, self.subtract),
+            '*': (2, self.multiply),
+            '/': (2, self.divide),
+            '%': (2, self.modulo),
+            '^': (3, self.power),
+            'and': (4, self.logical_and),
+            'or': (5, self.logical_or),
+            'not': (6, self.logical_not),
+            '==': (7, self.equal),
+            '!=': (7, self.not_equal),
+            '<': (8, self.less_than),
+            '<=': (8, self.less_than_equal),
+            '>': (8, self.greater_than),
+            '>=': (8, self.greater_than_equal),
+        }
+
+    def add(self, x, y):
+        return x + y
+
+    def subtract(self, x, y):
+        return x - y
+
+    def multiply(self, x, y):
+        return x * y
+
+    def divide(self, x, y):
+        return x / y
+
+    def modulo(self, x, y):
+        return x % y
+
+    def power(self, x, y):
+        return x ** y
+
+    def logical_and(self, x, y):
+        return x and y
+
+    def logical_or(self, x, y):
+        return x or y
+
+    def logical_not(self, x):
+        return not x
+
+    def equal(self, x, y):
+        return x == y
+
+    def not_equal(self, x, y):
+        return x != y
+
+    def less_than(self, x, y):
+        return x < y
+
+    def less_than_equal(self, x, y):
+        return x <= y
+
+    def greater_than(self, x, y):
+        return x > y
+
+    def greater_than_equal(self, x, y):
+        return x >= y
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (operators and operators[-1] in self.operators and
+                       self.operators[token][0] <= self.operators[operators[-1]][0]):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][1]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 + 3 * ( 4 - 1 )"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+
+_______________________________________________________________________
+import operator
+
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, 'left', operator.add),
+            '-': (1, 'left', operator.sub),
+            '*': (2, 'left', operator.mul),
+            '/': (2, 'left', operator.truediv),
+            '%': (2, 'left', operator.mod),
+            '^': (3, 'left', operator.pow),
+            'and': (4, 'left', operator.and_),
+            'or': (5, 'left', operator.or_),
+            'not': (6, 'right', operator.not_),
+            '==': (7, 'left', operator.eq),
+            '!=': (7, 'left', operator.ne),
+            '<': (8, 'left', operator.lt),
+            '<=': (8, 'left', operator.le),
+            '>': (8, 'left', operator.gt),
+            '>=': (8, 'left', operator.ge),
+        }
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (
+                    operators
+                    and operators[-1] in self.operators
+                    and (
+                        (self.operators[token][0] < self.operators[operators[-1]][0])
+                        or (
+                            self.operators[token][0] == self.operators[operators[-1]][0]
+                            and self.operators[token][1] == 'left'
+                        )
+                    )
+                ):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][2]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 ^ 3 ^ 2"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+________________________________________________________
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, 'left', self.add),
+            '-': (1, 'left', self.subtract),
+            '*': (2, 'left', self.multiply),
+            '/': (2, 'left', self.divide),
+            '%': (2, 'left', self.modulo),
+            '^': (3, 'right', self.power),
+            'and': (4, 'left', self.logical_and),
+            'or': (5, 'left', self.logical_or),
+            'not': (6, 'right', self.logical_not),
+            '==': (7, 'left', self.equal),
+            '!=': (7, 'left', self.not_equal),
+            '<': (8, 'left', self.less_than),
+            '<=': (8, 'left', self.less_than_equal),
+            '>': (8, 'left', self.greater_than),
+            '>=': (8, 'left', self.greater_than_equal),
+        }
+
+    def add(self, x, y):
+        return x + y
+
+    def subtract(self, x, y):
+        return x - y
+
+    def multiply(self, x, y):
+        return x * y
+
+    def divide(self, x, y):
+        return x / y
+
+    def modulo(self, x, y):
+        return x % y
+
+    def power(self, x, y):
+        return x ** y
+
+    def logical_and(self, x, y):
+        return x and y
+
+    def logical_or(self, x, y):
+        return x or y
+
+    def logical_not(self, x):
+        return not x
+
+    def equal(self, x, y):
+        return x == y
+
+    def not_equal(self, x, y):
+        return x != y
+
+    def less_than(self, x, y):
+        return x < y
+
+    def less_than_equal(self, x, y):
+        return x <= y
+
+    def greater_than(self, x, y):
+        return x > y
+
+    def greater_than_equal(self, x, y):
+        return x >= y
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (
+                    operators
+                    and operators[-1] in self.operators
+                    and (
+                        (self.operators[token][0] < self.operators[operators[-1]][0])
+                        or (
+                            self.operators[token][0] == self.operators[operators[-1]][0]
+                            and self.operators[token][1] == 'left'
+                        )
+                    )
+                ):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][2]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 + 3 * ( 4 - 1 )"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+
+___________________________________________________________
+class ExpressionEvaluator:
+    def __init__(self):
+        self.operators = {
+            '+': (1, 'left', lambda x, y: x + y),
+            '-': (1, 'left', lambda x, y: x - y),
+            '*': (2, 'left', lambda x, y: x * y),
+            '/': (2, 'left', lambda x, y: x / y),
+            '%': (2, 'left', lambda x, y: x % y),
+            '^': (3, 'right', lambda x, y: x ** y),
+            'and': (4, 'left', lambda x, y: x and y),
+            'or': (5, 'left', lambda x, y: x or y),
+            'not': (6, 'right', lambda x: not x),
+            '==': (7, 'left', lambda x, y: x == y),
+            '!=': (7, 'left', lambda x, y: x != y),
+            '<': (8, 'left', lambda x, y: x < y),
+            '<=': (8, 'left', lambda x, y: x <= y),
+            '>': (8, 'left', lambda x, y: x > y),
+            '>=': (8, 'left', lambda x, y: x >= y),
+        }
+
+    def shunting_yard(self, tokens):
+        output = []
+        operators = []
+
+        for token in tokens:
+            if token.isdigit():
+                output.append(float(token))
+            elif token in self.operators:
+                while (
+                    operators
+                    and operators[-1] in self.operators
+                    and (
+                        (self.operators[token][0] < self.operators[operators[-1]][0])
+                        or (
+                            self.operators[token][0] == self.operators[operators[-1]][0]
+                            and self.operators[token][1] == 'left'
+                        )
+                    )
+                ):
+                    output.append(operators.pop())
+                operators.append(token)
+            elif token == '(':
+                operators.append(token)
+            elif token == ')':
+                while operators and operators[-1] != '(':
+                    output.append(operators.pop())
+                operators.pop()
+
+        while operators:
+            output.append(operators.pop())
+
+        return output
+
+    def evaluate_rpn(self, rpn):
+        stack = []
+
+        for token in rpn:
+            if isinstance(token, float):
+                stack.append(token)
+            elif token in self.operators:
+                op = self.operators[token][2]
+                if token == 'not':
+                    stack[-1] = op(stack[-1])
+                else:
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(op(a, b))
+
+        return stack[0]
+
+    def evaluate_expression(self, expression):
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        postfix_tokens = self.shunting_yard(tokens)
+        result = self.evaluate_rpn(postfix_tokens)
+        return result
+
+if __name__ == "__main__":
+    evaluator = ExpressionEvaluator()
+
+    arithmetic_expression = "2 + 3 * ( 4 - 1 )"
+    logical_expression = "( 3 > 1 ) and not ( 4 <= 2 )"
+    relational_expression = "5 == 5 and 10 < 15"
+
+    result_arithmetic = evaluator.evaluate_expression(arithmetic_expression)
+    result_logical = evaluator.evaluate_expression(logical_expression)
+    result_relational = evaluator.evaluate_expression(relational_expression)
+
+    print(f"Arithmetic Result: {result_arithmetic}")
+    print(f"Logical Result: {result_logical}")
+    print(f"Relational Result: {result_relational}")
+

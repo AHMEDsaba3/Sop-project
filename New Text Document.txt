@@ -1,0 +1,80 @@
+import operator
+import re
+from typing import Callable, List, Tuple, Union
+
+# Step 1: Define a class to hold operator metadata
+class Operator:
+    def __init__(self, symbol: str, function: Callable, precedence: int, associativity: str):
+        self.symbol = symbol
+        self.function = function
+        self.precedence = precedence
+        self.associativity = associativity
+
+# Step 2: Define the lexical analysis function
+def tokenize(expression: str) -> List[Union[str, float]]:
+    token_spec = [
+        ("NUMBER", r"\d+(\.\d*)?"),
+        ("OPERATOR", r"[+\-*/]"),
+        ("PAREN", r"[()]"),
+        ("WHITESPACE", r"\s+"),
+    ]
+    tok_regex = "|".join("(?P<%s>%s)" % pair for pair in token_spec)
+    for mo in re.finditer(tok_regex, expression):
+        kind = mo.lastgroup
+        if kind == "WHITESPACE":
+            continue
+        yield mo.group(kind)
+
+# Step 3: Define the parsing function
+def parse(tokens: List[Union[str, float]]) -> Tuple[Operator, List[Union[str, float]]]:
+    # Convert the list of tokens into a dictionary of operator functions and precedences
+    operators = {
+        "+": Operator("+", operator.add, 1, "L"),
+        "-": Operator("-", operator.sub, 1, "L"),
+        "*": Operator("*", operator.mul, 2, "L"),
+        "/": Operator("/", operator.truediv, 2, "L"),
+    }
+
+    # Implement a shunting yard algorithm to parse the expression
+    output_queue = []
+    operator_stack = []
+
+    for token in tokens:
+        if isinstance(token, (int, float)):
+            output_queue.append(token)
+        elif token in operators:
+            while (operator_stack and operator_stack[-1] in operators and
+                   operators[token].precedence <= operators[operator_stack[-1]].precedence):
+                output_queue.append(operator_stack.pop())
+            operator_stack.append(token)
+        elif token == "(":
+            operator_stack.append(token)
+        elif token == ")":
+            while operator_stack and operator_stack[-1] != "(":
+                output_queue.append(operator_stack.pop())
+            operator_stack.pop()
+
+    while operator_stack:
+        output_queue.append(operator_stack.pop())
+
+    return operators[output_queue[1]], output_queue[2:]
+
+# Step 4: Define the evaluator function
+def evaluate(operators: List[Operator], operands: List[Union[str, float]]) -> float:
+    stack = []
+    for token in operands:
+        if isinstance(token, (int, float)):
+            stack.append(token)
+        elif token in operators:
+            if operators[token].associativity == "L":
+                right = stack.pop()
+                left = stack.pop()
+            else:
+                left = stack.pop()
+                right = stack.pop()
+            result = operators[token].function(left, right)
+            stack.append(result)
+    return stack[0]
+
+# Test the implementation
+
